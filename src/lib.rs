@@ -580,10 +580,10 @@ impl Scale {
             }
             let index = degree_notes[idx].0.index() + 1;
             let candidate_note = NoteName::by_index(index);
-            println!(
-                "candidate_note: {:?}, next_midi: {:?}",
-                candidate_note, next_midi
-            );
+            // println!(
+            //     "candidate_note: {:?}, next_midi: {:?}",
+            //     candidate_note, next_midi
+            // );
             let next_note = notes_map
                 .resolve_note_for_midi((candidate_note, Accidental::White), next_midi)
                 .unwrap();
@@ -592,10 +592,10 @@ impl Scale {
             if next_note.1 != Accidental::White {
                 used_accidentals.push(next_note.1);
             }
-            println!(
-                "next_note: {:?}, degree_notes: {:?}, degree_midi: {:?}, used_accidentals: {:?}",
-                next_note, degree_notes, degree_midi, used_accidentals
-            )
+            // println!(
+            //     "next_note: {:?}, degree_notes: {:?}, degree_midi: {:?}, used_accidentals: {:?}",
+            //     next_note, degree_notes, degree_midi, used_accidentals
+            // )
         }
         ResolvedScale {
             key: *key,
@@ -748,10 +748,10 @@ impl NotesMap {
         midi: u8,
     ) -> (NoteName, Accidental) {
         let notes = self.get_by_midi(&(midi % 12));
-        println!(
-            "resolve_enharmonic:(accidental: {:?}, midi: {:?}, notes: {:?})",
-            accidental, midi, notes
-        );
+        // println!(
+        //     "resolve_enharmonic:(accidental: {:?}, midi: {:?}, notes: {:?})",
+        //     accidental, midi, notes
+        // );
         let acc_final: Accidental;
         match accidental {
             Some(acc) => {

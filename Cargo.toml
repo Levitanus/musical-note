@@ -1,6 +1,6 @@
 [package]
 name = "musical-note"
-version = "0.1.10"
+version = "0.1.102"
 edition = "2021"
 authors = ["Timofei Kazantsev (Levitanus) <pianoist@ya.ru>"]
 license = "MIT"
