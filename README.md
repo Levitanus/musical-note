@@ -11,12 +11,15 @@ At least, it works better, that built-in Reaper and MuseScore algorithms.
 It uses Nederlanden language as string representation, as it is the most
 consistent and easy to use (and hard to mistake) note representation.
 
-## Basically:
+### Basically:
 - B is always B (there is no H)
 - is — Sharp
 - isis — DoubleSharp
 - es (for E and A — Es and As respectively) — Flat
 - eses — DoubleFlat
+
+### Docs
+https://docs.rs/musical-note/
 
 ## Examples
 

@@ -1,12 +1,13 @@
 [package]
 name = "musical-note"
-version = "0.1.0"
+version = "0.1.10"
 edition = "2021"
 authors = ["Timofei Kazantsev (Levitanus) <pianoist@ya.ru>"]
 license = "MIT"
 repository = "https://github.com/Levitanus/musical-note"
 readme = "README.md"
 description = "Represents general musical note and allow to convert it, currently only to MIDI byte and back."
+documentation = "https://docs.rs/musical-note/"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
