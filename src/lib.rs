@@ -123,6 +123,7 @@
 use lazy_static::lazy_static;
 use once_cell::sync::OnceCell;
 use regex::Regex;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 // static mut NOTES_MAP: NotesMap = Lazy::new(NotesMap::empty());
@@ -131,12 +132,12 @@ static _NOTES_MAP: OnceCell<NotesMap> = OnceCell::new();
 // type Octave = u8;
 
 /// Represents note, that can be written in score.
-/// 
+///
 /// It has:
 /// - precise note
 /// - enharmonically correct accidental
 /// - octave
-#[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, Serialize, Deserialize)]
 pub struct ResolvedNote {
     pub note: NoteName,
     pub accidental: Accidental,
@@ -182,7 +183,7 @@ impl ResolvedNote {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Eq, Serialize, Deserialize)]
 pub struct Octave {
     octave: u8,
 }
@@ -234,7 +235,7 @@ pub fn midi_to_note(midi: u8, key: Key, accidental: Option<Accidental>) -> Resol
 }
 
 /// Not yet resolved Note, constructed by MIDI.
-#[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, Serialize, Deserialize)]
 pub struct Note {
     midi: u8,
     accidental: Option<Accidental>,
@@ -280,6 +281,18 @@ impl Note {
         }
         None
     }
+    pub fn midi(&self) -> u8 {
+        self.midi
+    }
+    pub fn set_midi(&mut self, midi: u8) {
+        self.midi = midi;
+    }
+    pub fn accidental(&self) -> Option<Accidental> {
+        self.accidental.clone()
+    }
+    pub fn set_accidental(&mut self, accidental: Option<Accidental>) {
+        self.accidental = accidental;
+    }
 }
 impl From<u8> for Note {
     /// from midi, but without boilerplate.
@@ -297,7 +310,7 @@ impl From<ResolvedNote> for Note {
     }
 }
 
-#[derive(Debug, PartialEq, PartialOrd, Hash, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, PartialOrd, Hash, Eq, Clone, Copy, Serialize, Deserialize)]
 pub enum Accidental {
     White,
     Sharp,
@@ -347,7 +360,7 @@ impl ToString for Accidental {
     }
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Eq, Serialize, Deserialize)]
 pub struct Key {
     pub tonic: (NoteName, Accidental),
     pub scale: Scale,
@@ -413,7 +426,7 @@ fn note_from_str(name: &str) -> Option<(NoteName, Accidental)> {
     }
 }
 
-#[derive(Debug, Hash, PartialEq, Eq, Clone, Copy, PartialOrd)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone, Copy, PartialOrd, Serialize, Deserialize)]
 pub enum NoteName {
     C,
     D,
@@ -489,9 +502,9 @@ impl ToString for NoteName {
 }
 
 /// Concrete Scale representation, based on the given root note.
-/// 
+///
 /// Used to estimate alteration for notes, can be alterated by scale rules.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ResolvedScale {
     pub key: Key,
     /// 0..12 midi bytes, representing every grade of the scale.
@@ -542,7 +555,7 @@ impl ResolvedScale {
     }
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Serialize, Deserialize)]
 pub enum Scale {
     Major,
     Minor,
@@ -625,7 +638,7 @@ impl ToString for Scale {
 }
 
 /// Effectively maps notes to midi and backwards.
-/// 
+///
 /// Example
 /// ```
 /// use musical_note::{NotesMap, NoteName, Accidental};
@@ -720,14 +733,14 @@ impl NotesMap {
         *self.note_index.get(&(note, acc)).unwrap()
     }
     /// Accidental of "root" is not counted.
-    /// 
+    ///
     /// For the given note and MIDI-byte finds only possible enharmonic variant,
     /// or returns None.
-    /// 
+    ///
     /// For example: with the given `NoteName::C` and midi `2`, only possible
     /// enharmonic variant is `(NoteName::C, Accidental::DoubleSharp)`, which
     /// will be returned.
-    /// 
+    ///
     /// If None is returned — something goes very wrong and it is better to panic.
     pub fn resolve_note_for_midi(
         &self,
