@@ -97,6 +97,23 @@
 //!     midi_to_note(63, c_phrygian, None),
 //!     ResolvedNote::from_str("es3").unwrap()
 //! );
+//!
+//! let es3 = midi_to_note(63,
+//!                         Key::new(
+//!                             NoteName::C,
+//!                             Accidental::Sharp,
+//!                             Scale::Major,
+//!                         ),
+//!                         Some(Accidental::Flat));
+//! assert_eq!(
+//!     format!(
+//!         "{}{}{}",
+//!         es3.note.to_string(),
+//!         es3.accidental.to_string_by_note(es3.note),
+//!         es3.octave.as_midi()
+//!     ),
+//!     "es3".to_string
+//! );
 //! assert_eq!(
 //!     midi_to_note(65, c_phrygian, None),
 //!     ResolvedNote::from_str("f3").unwrap()
@@ -323,7 +340,9 @@ impl Accidental {
         match self {
             Self::DoubleFlat | Self::Flat => {
                 if note.need_trunk() {
-                    self.to_string().remove(0).to_string()
+                    let mut s = self.to_string();
+                    s.remove(0);
+                    s
                 } else {
                     self.to_string()
                 }
