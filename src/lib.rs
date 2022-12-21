@@ -112,8 +112,9 @@
 //!         es3.accidental.to_string_by_note(es3.note),
 //!         es3.octave.as_midi()
 //!     ),
-//!     "es3".to_string
+//!     "es3".to_string()
 //! );
+//!
 //! assert_eq!(
 //!     midi_to_note(65, c_phrygian, None),
 //!     ResolvedNote::from_str("f3").unwrap()
