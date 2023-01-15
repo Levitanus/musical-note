@@ -675,7 +675,7 @@ impl NotesMap {
         if _NOTES_MAP.get().is_none() {
             _NOTES_MAP.set(Self::new()).unwrap();
         }
-        _NOTES_MAP.get().expect("logger is not initialized")
+        _NOTES_MAP.get().expect("Notes map is not initialized")
     }
     // fn empty() -> Self {}
     fn new() -> Self {
@@ -781,23 +781,29 @@ impl NotesMap {
         midi: u8,
     ) -> (NoteName, Accidental) {
         let notes = self.get_by_midi(&(midi % 12));
-        // println!(
-        //     "resolve_enharmonic:(accidental: {:?}, midi: {:?}, notes: {:?})",
-        //     accidental, midi, notes
-        // );
-        let acc_final: Accidental;
-        match accidental {
+        let acc_final: Accidental = match accidental {
             Some(acc) => {
                 if notes.contains_key(&acc) {
-                    acc_final = acc;
+                    acc
                 } else {
-                    acc_final = Accidental::White;
+                    Accidental::White
                 }
             }
-            None => {
-                acc_final = Accidental::White;
-            }
-        }
-        (notes[&acc_final], acc_final)
+            None => Accidental::White,
+        };
+        let got_note = match notes.get(&acc_final) {
+            Some(n) => *n,
+            None => return self.resolve_enharmonic(Some(Accidental::Sharp), midi),
+        };
+        (got_note, acc_final)
     }
+}
+
+#[test]
+fn test_enharmonic() {
+    let note = Note::from_midi(61, Some(Accidental::White));
+    assert_eq!(
+        note.resolve(Key::from_str("c", Scale::Major).unwrap()),
+        ResolvedNote::from_str("cis3").unwrap()
+    );
 }
