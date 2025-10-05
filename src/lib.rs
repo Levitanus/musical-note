@@ -200,6 +200,15 @@ impl ResolvedNote {
         None
     }
 }
+impl ToString for ResolvedNote {
+    fn to_string(&self) -> String {
+        format!(
+            "{}{}",
+            self.note.to_string(),
+            self.accidental.to_string_by_note(self.note)
+        )
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Eq, Serialize, Deserialize)]
 pub struct Octave {
@@ -223,12 +232,19 @@ impl Octave {
     pub fn as_midi(&self) -> i8 {
         self.octave as i8 - 2
     }
-    pub fn from_midi(midi: u8) -> Self {
+    /// from midi octave representation e.g. -2 is the lowest value.
+    pub fn from_midi(midi: i8) -> Self {
+        Self {
+            octave: (midi + 2) as u8,
+        }
+    }
+    /// from raw midi note byte
+    pub fn from_midi_note(midi: u8) -> Self {
         Self { octave: midi / 12 }
     }
     /// Get note index `(C=0, D=2, D#=3, B=11)` and octave.
-    pub fn split_midi(midi: u8) -> (u8, Self) {
-        (midi % 12, Self::from_midi(midi))
+    pub fn split_midi_note(midi: u8) -> (u8, Self) {
+        (midi % 12, Self::from_midi_note(midi))
     }
     /// Return raw midi byte.
     pub fn apply_to_midi_note(&self, note_idx: u8) -> u8 {
@@ -264,11 +280,11 @@ impl Note {
         Self {
             midi,
             accidental,
-            octave: Octave::from_midi(midi),
+            octave: Octave::from_midi_note(midi),
         }
     }
     pub fn resolve(&self, key: Key) -> ResolvedNote {
-        let (midi_note, octave) = Octave::split_midi(self.midi);
+        let (midi_note, octave) = Octave::split_midi_note(self.midi);
         // let midi_note = self.midi % 12;
         let notes_map = NotesMap::get();
         let res = self.resolve_by_accident(&notes_map, midi_note, octave);
@@ -371,7 +387,7 @@ impl Default for Accidental {
 impl ToString for Accidental {
     fn to_string(&self) -> String {
         match self {
-            Accidental::White => "white".to_string(),
+            Accidental::White => "".to_string(),
             Accidental::Sharp => "is".to_string(),
             Accidental::DoubleSharp => "isis".to_string(),
             Accidental::Flat => "es".to_string(),
@@ -463,7 +479,7 @@ impl NoteName {
             _ => false,
         }
     }
-    fn index(self) -> u8 {
+    pub fn index(self) -> u8 {
         match self {
             Self::C => 0,
             Self::D => 1,
@@ -486,7 +502,7 @@ impl NoteName {
             _ => None,
         }
     }
-    fn by_index(mut index: u8) -> Self {
+    pub fn by_index(mut index: u8) -> Self {
         let names = [
             Self::C,
             Self::D,
